@@ -1,0 +1,223 @@
+[WIF]
+Version=1.1
+Date=6/9/2013
+Developers=info@pixeLoom.com
+Source Program=pixeLoom for Mac
+Source Version=2.1.6
+
+[NOTES]
+1=(null)
+
+[WEAVING]
+Shafts=8
+Treadles=8
+Rising Shed=true
+
+[CONTENTS]
+COLOR PALETTE=true
+WARP SYMBOL PALETTE=false
+WEFT SYMBOL PALETTE=false
+TEXT=false
+WEAVING=true
+WARP=true
+WEFT=true
+NOTES=false
+TIEUP=true
+COLOR TABLE=true
+WARP SYMBOL TABLE=false
+WEFT SYMBOL TABLE=false
+THREADING=true
+WARP THICKNESS=false
+WARP THICKNESS ZOOM=false
+WARP SPACING=false
+WARP SPACING ZOOM=false
+WARP COLORS=false
+WARP SYMBOLS=false
+TREADLING=true
+LIFTPLAN=false
+WEFT THICKNESS=false
+WEFT THICKNESS ZOOM=false
+WEFT SPACING=false
+WEFT SPACING ZOOM=false
+WEFT COLORS=false
+WEFT SYMBOLS=false
+PRIVATE PIXELOOM=true
+
+[WARP]
+Color=2
+Units=Inches
+Spacing=0.10000
+Threads=30
+
+[WEFT]
+Color=1
+Units=Inches
+Spacing=0.10000
+Threads=30
+
+[COLOR PALETTE]
+Entries=16
+Range=0,255
+
+[COLOR TABLE]
+1=255,255,255
+2=0,0,0
+3=14,14,255
+4=233,128,88
+5=221,202,94
+6=109,202,59
+7=213,120,253
+8=132,254,213
+9=248,4,146
+10=94,94,94
+11=83,0,145
+12=141,2,8
+13=213,213,213
+14=250,255,41
+15=250,214,125
+16=252,235,188
+
+[THREADING]
+1=1
+2=2
+3=3
+4=4
+5=5
+6=6
+7=4
+8=5
+9=6
+10=7
+11=5
+12=6
+13=7
+14=8
+15=6
+16=7
+17=8
+18=6
+19=7
+20=8
+21=6
+22=7
+23=5
+24=6
+25=4
+26=5
+27=3
+28=4
+29=2
+30=3
+
+[TREADLING]
+1=1,8
+2=2
+3=3
+4=1,8
+5=2
+6=3
+7=1
+8=4
+9=5
+10=1
+11=4
+12=5
+13=6
+14=4
+15=5
+16=6
+17=7
+18=5
+19=6
+20=7
+21=5
+22=6
+23=4
+24=5
+25=6
+26=4
+27=5
+28=1
+29=4
+30=3
+
+[TIEUP]
+1=2,5,8
+2=1,4,7
+3=3,6
+4=1,4,7,8
+5=3,6,7
+6=2,5,6,8
+7=1,4,5,7,8
+8=8
+
+[PRIVATE PIXELOOM]
+Version=1.10
+pxL1=0.00
+pxL2=0.00
+pxL3=1
+pxL4=1
+pxL5=1.00
+pxL6=0.00
+pxL9=1.00
+pxL10=10
+pxL11=5
+pxL12=10
+pxL13=30
+pxL14=0
+pxL15=1
+pxL16=
+pxL17=
+pxL18=0
+pxL19=0
+pxL20=0
+pxL21=0
+pxL22=0
+pxL23=0
+pxL24=1
+pxL25=0
+pxL26=2
+pxL27=4
+pxL28=false
+pxL29=false
+pxL30=false
+pxL31=false
+pxL40=0
+pxL41=1
+pxL42=1
+pxL43=false
+pxL45=0
+pxL46=1
+pxL47=0
+pxL48=
+pxL49=0
+pxL50=false
+pxL51=2
+pxL52=false
+pxL53=1
+pxL54=1
+pxL55=0
+pxL56=0
+pxL57=1
+pxL58=1
+pxL59=true
+pxL60=false
+pxL61=false
+pxL62=false
+pxL63=true
+pxL64=false
+pxL65=true
+pxL66=false
+pxL67=false
+pxL68=false
+pxL69=false
+pxL70=0
+pxL71=0
+pxL72=true
+pxL73=true
+pxL74=0
+pxL75=0
+pxL76=true
+pxL77=true
+pxL78=0
+
