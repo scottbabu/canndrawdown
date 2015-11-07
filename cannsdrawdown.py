@@ -16,55 +16,67 @@ from WIF import *
 
 
 #----------------------------------------------------------------------
-class ChangeDepthDialog(wx.Dialog):
+# class ChangeDepthDialog(wx.Dialog):
 
-    def __init__(self, *args, **kw):
-        super(ChangeDepthDialog, self).__init__(*args, **kw)
+#     def __init__(self, *args, **kw):
+#         super(ChangeDepthDialog, self).__init__(*args, **kw)
 
-        self.InitUI()
-        self.SetSize((250, 200))
-        self.SetTitle("Change Color Depth")
-
-
-    def InitUI(self):
-
-        pnl = wx.Panel(self)
-        vbox = wx.BoxSizer(wx.VERTICAL)
-
-        sb = wx.StaticBox(pnl, label='Colors')
-        sbs = wx.StaticBoxSizer(sb, orient=wx.VERTICAL)
-        sbs.Add(wx.RadioButton(pnl, label='256 Colors',
-            style=wx.RB_GROUP))
-        sbs.Add(wx.RadioButton(pnl, label='16 Colors'))
-        sbs.Add(wx.RadioButton(pnl, label='2 Colors'))
-
-        hbox1 = wx.BoxSizer(wx.HORIZONTAL)
-        hbox1.Add(wx.RadioButton(pnl, label='Custom'))
-        hbox1.Add(wx.TextCtrl(pnl), flag=wx.LEFT, border=5)
-        sbs.Add(hbox1)
-
-        pnl.SetSizer(sbs)
-
-        hbox2 = wx.BoxSizer(wx.HORIZONTAL)
-        okButton = wx.Button(self, label='Ok')
-        closeButton = wx.Button(self, label='Close')
-        hbox2.Add(okButton)
-        hbox2.Add(closeButton, flag=wx.LEFT, border=5)
-
-        vbox.Add(pnl, proportion=1,
-            flag=wx.ALL|wx.EXPAND, border=5)
-        vbox.Add(hbox2,
-            flag=wx.ALIGN_CENTER|wx.TOP|wx.BOTTOM, border=10)
-
-        self.SetSizer(vbox)
-
-        okButton.Bind(wx.EVT_BUTTON, self.OnClose)
-        closeButton.Bind(wx.EVT_BUTTON, self.OnClose)
+#         self.InitUI()
+#         self.SetSize((250, 200))
+#         self.SetTitle("Change Color Depth")
 
 
-    def OnClose(self, e):
+#     def InitUI(self):
 
-        self.Destroy()
+#         pnl = wx.Panel(self)
+#         vbox = wx.BoxSizer(wx.VERTICAL)
+
+#         sb = wx.StaticBox(pnl, label='Colors')
+#         sbs = wx.StaticBoxSizer(sb, orient=wx.VERTICAL)
+#         sbs.Add(wx.RadioButton(pnl, label='256 Colors',
+#             style=wx.RB_GROUP))
+#         sbs.Add(wx.RadioButton(pnl, label='16 Colors'))
+#         sbs.Add(wx.RadioButton(pnl, label='2 Colors'))
+
+#         hbox1 = wx.BoxSizer(wx.HORIZONTAL)
+#         hbox1.Add(wx.RadioButton(pnl, label='Custom'))
+#         hbox1.Add(wx.TextCtrl(pnl), flag=wx.LEFT, border=5)
+#         sbs.Add(hbox1)
+
+#         pnl.SetSizer(sbs)
+
+#         hbox2 = wx.BoxSizer(wx.HORIZONTAL)
+#         okButton = wx.Button(self, label='Ok')
+#         closeButton = wx.Button(self, label='Close')
+#         hbox2.Add(okButton)
+#         hbox2.Add(closeButton, flag=wx.LEFT, border=5)
+
+#         vbox.Add(pnl, proportion=1,
+#             flag=wx.ALL|wx.EXPAND, border=5)
+#         vbox.Add(hbox2,
+#             flag=wx.ALIGN_CENTER|wx.TOP|wx.BOTTOM, border=10)
+
+#         self.SetSizer(vbox)
+
+#         okButton.Bind(wx.EVT_BUTTON, self.OnClose)
+#         closeButton.Bind(wx.EVT_BUTTON, self.OnClose)
+
+
+#     def OnClose(self, e):
+
+#         self.Destroy()
+#----------------------------------------------------------------------
+class MyDialog(wx.Dialog):
+    def __init__(self, parent, id, title):
+        wx.Dialog.__init__(self, parent, id, title, data, size=(350,300))
+
+        sizer =  self.CreateTextSizer('My Buttons')
+        sizer.Add(wx.Button(self, -1, 'Button'), 0, wx.ALL, 5)
+        sizer.Add(wx.Button(self, -1, 'Button'), 0, wx.ALL, 5)
+        sizer.Add(wx.Button(self, -1, 'Button'), 0, wx.ALL, 5)
+        sizer.Add(wx.Button(self, -1, 'Button'), 0, wx.ALL|wx.ALIGN_CENTER, 5)
+        sizer.Add(wx.Button(self, -1, data), 0, wx.ALL|wx.EXPAND, 5)
+        self.SetSizer(sizer)
 #----------------------------------------------------------------------
 
 class ShowWeavingInfoFile(wx.Dialog):
@@ -234,23 +246,26 @@ class MyForm(wx.Frame):
         # pos=(100,100),
         self.wif_file_name = ""
 
+        # favicon = wx.Icon('favicon.ico', wx.BITMAP_TYPE_ICO, 16, 16)
+        favicon = wx.Icon('grid-icon.png', wx.BITMAP_TYPE_PNG)
+        wx.Frame.SetIcon(self, favicon)
+        #open_file.SetBitmap(wx.Image('',wx.BITMAP_TYPE_PNG).ConvertToBitmap())
+
+        # get the data from the ini file
+        # to set the size and location of the main window
+        # the last directory use
+        # the 5 most recent files looked at
         self.CDDConfig = CDDconfig()
         self.CDDConfig.get()
+
         self.last_dir = self.CDDConfig.LastDir
         left = int(self.CDDConfig.PositionLeft)
         top = int(self.CDDConfig.PositionTop)
         # print "left, top", left, top
         width = int(self.CDDConfig.SizeWidth)
         height = int(self.CDDConfig.SizeHeight)
-        # print "width, height" , width, height
-        # self.MoveXY(left, top)
-        # self.SetPosition
-        # self.SetDimensions(x, y, width, height, sizeFlags)
         self.SetDimensions(left, top, width, height)
 
-        # file_count = len(self.CDDConfig.RecentWIF)
-        # for fileindex in range(file_count):
-        #     print self.CDDConfig.RecentWIF[fileindex], fileindex
 
         self.wif = Weaving_Info_File()
         self.panel = wx.Panel(self, wx.ID_ANY)
@@ -331,20 +346,28 @@ class MyForm(wx.Frame):
         '''
         display an WIF file
         '''
-        if self.wif_file_name == "":
-            event.Skip()
-            pass
-        print "|" + self.wif_file_name + "|"
+        dia = MyDialog(self, -1, 'buttons')
+        dia.ShowModal()
+        dia.Destroy()
+        # if self.wif_file_name == "":
+        #     event.Skip()
+        #     pass
+        # print "|" + self.wif_file_name + "|"
 
-        chgdep = ShowWeavingInfoFile(None, title='Show WIF', self.wif)
-        chgdep.ShowModal()
-        chgdep.Destroy()
+        # chgdep = ShowWeavingInfoFile(None, title='Show WIF')
+        # chgdep.ShowModal()
+        # chgdep.Destroy()
 
-        # description = """WIF file \n""" + self.wif_file_name
-        # dlg = wx.MessageDialog(self, description, "WIF File", wx.OK | wx.ICON_INFORMATION)
-        # dlg.ShowModal()
-        # dlg.Destroy()
-        event.Skip()
+        # # description = """WIF file \n""" + self.wif_file_name
+        # # dlg = wx.MessageDialog(self, description, "WIF File", wx.OK | wx.ICON_INFORMATION)
+        # # dlg.ShowModal()
+        # # dlg.Destroy()
+        # event.Skip()
+
+    # def OnShowCustomDialog(self, event):
+    #     dia = MyDialog(self, -1, 'buttons')
+    #     dia.ShowModal()
+    #     dia.Destroy()
 
     def OnQuit(self, event):
         '''
@@ -369,37 +392,13 @@ class MyForm(wx.Frame):
         open_file = myFileDialog(self)
         wif_file = open_file.ShowModal(self.last_dir)
         # self.wif_file_name = open_file.ShowModal(self.last_dir)
-        self.CDDConfig.AddRecentWIFFile(wif_file)
-        self.last_dir = os.path.dirname(wif_file)
         # print self.last_dir
         if wif_file == None:
             wx.MessageBox("No WIF file selected")
         else:
+            self.CDDConfig.AddRecentWIFFile(wif_file)
+            self.last_dir = os.path.dirname(wif_file)
             self.Load_WIF_File(wif_file, None)
-            # print "File name", self.wif_file_name
-            # # self.canndrawWin.SetTitle(self.wif_file_name)
-            # self.wif.clear_wif()
-            # self.wif.read_wif(self.wif_file_name)
-            # file_lines = ""
-            # file_lines += "Version: " + self.wif.Version + "\n"
-            # file_lines += "Developers: " + self.wif.Developers + "\n"
-            # # print wif.contents
-            # print self.wif.weaving
-            # print self.wif.warp
-            # # file_lines += self.wif.warp
-            # # file_lines += self.wif.weft
-            # #for thr in wif.threading.threads:
-            # #    print thr, wif.threading.threads[thr].Shaft, wif.threading.threads[thr].Color
-
-            # # self.tc3.SetValue(file_lines)
-            # self.Create_Layout()
-            # self.Load_Grids()
-
-            # msg = wx.grid.GridTableMessage(self,          # The table
-            #                                wx.grid.GRIDTABLE_NOTIFY_ROWS_APPENDED, # what we did to it
-            #                                1                                       # how many
-            #                            )
-            # self.GetView().ProcessTableMessage(msg)
         event.Skip()
 
     def Load_WIF_File(self, wif_file, event):
@@ -512,6 +511,7 @@ class MyForm(wx.Frame):
 
         fgs = wx.FlexGridSizer(rows=2, cols=2, hgap=2, vgap=2)
         # fgs.SetFlexibleDirection( wx.HORIZONTAL )
+        fgs.SetFlexibleDirection( wx.BOTH )
         # fgs.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_ALL )
 
         # threading
