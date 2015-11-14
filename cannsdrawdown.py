@@ -4,221 +4,15 @@ import os
 import string
 
 from functools import partial
-
+# import functools
 from resource import *
-# from Threading import *
-# from Tie_ups import *
-# from Treadlings import *
 from WIF import *
-
-
-# #----------------------------------------------------------------------
-
-
-#----------------------------------------------------------------------
-# class ChangeDepthDialog(wx.Dialog):
-
-#     def __init__(self, *args, **kw):
-#         super(ChangeDepthDialog, self).__init__(*args, **kw)
-
-#         self.InitUI()
-#         self.SetSize((250, 200))
-#         self.SetTitle("Change Color Depth")
-
-
-#     def InitUI(self):
-
-#         pnl = wx.Panel(self)
-#         vbox = wx.BoxSizer(wx.VERTICAL)
-
-#         sb = wx.StaticBox(pnl, label='Colors')
-#         sbs = wx.StaticBoxSizer(sb, orient=wx.VERTICAL)
-#         sbs.Add(wx.RadioButton(pnl, label='256 Colors',
-#             style=wx.RB_GROUP))
-#         sbs.Add(wx.RadioButton(pnl, label='16 Colors'))
-#         sbs.Add(wx.RadioButton(pnl, label='2 Colors'))
-
-#         hbox1 = wx.BoxSizer(wx.HORIZONTAL)
-#         hbox1.Add(wx.RadioButton(pnl, label='Custom'))
-#         hbox1.Add(wx.TextCtrl(pnl), flag=wx.LEFT, border=5)
-#         sbs.Add(hbox1)
-
-#         pnl.SetSizer(sbs)
-
-#         hbox2 = wx.BoxSizer(wx.HORIZONTAL)
-#         okButton = wx.Button(self, label='Ok')
-#         closeButton = wx.Button(self, label='Close')
-#         hbox2.Add(okButton)
-#         hbox2.Add(closeButton, flag=wx.LEFT, border=5)
-
-#         vbox.Add(pnl, proportion=1,
-#             flag=wx.ALL|wx.EXPAND, border=5)
-#         vbox.Add(hbox2,
-#             flag=wx.ALIGN_CENTER|wx.TOP|wx.BOTTOM, border=10)
-
-#         self.SetSizer(vbox)
-
-#         okButton.Bind(wx.EVT_BUTTON, self.OnClose)
-#         closeButton.Bind(wx.EVT_BUTTON, self.OnClose)
-
-
-#     def OnClose(self, e):
-
-#         self.Destroy()
-#----------------------------------------------------------------------
-class MyDialog(wx.Dialog):
-    def __init__(self, parent, id, title):
-        wx.Dialog.__init__(self, parent, id, title, data, size=(350,300))
-
-        sizer =  self.CreateTextSizer('My Buttons')
-        sizer.Add(wx.Button(self, -1, 'Button'), 0, wx.ALL, 5)
-        sizer.Add(wx.Button(self, -1, 'Button'), 0, wx.ALL, 5)
-        sizer.Add(wx.Button(self, -1, 'Button'), 0, wx.ALL, 5)
-        sizer.Add(wx.Button(self, -1, 'Button'), 0, wx.ALL|wx.ALIGN_CENTER, 5)
-        sizer.Add(wx.Button(self, -1, data), 0, wx.ALL|wx.EXPAND, 5)
-        self.SetSizer(sizer)
-#----------------------------------------------------------------------
-
-class ShowWeavingInfoFile(wx.Dialog):
-
-    def __init__(self, *args, **kw):
-        super(ShowWeavingInfoFile, self).__init__(*args, **kw)
-
-        self.InitUI()
-        self.SetSize((250, 200))
-
-
-    def InitUI(self):
-
-        pnl = wx.Panel(self)
-        vbox = wx.BoxSizer(wx.VERTICAL)
-
-        sb = wx.StaticBox(pnl, label='Colors')
-        sbs = wx.StaticBoxSizer(sb, orient=wx.VERTICAL)
-        sbs.Add(wx.RadioButton(pnl, label='256 Colors', style=wx.RB_GROUP))
-        sbs.Add(wx.RadioButton(pnl, label='16 Colors'))
-        sbs.Add(wx.RadioButton(pnl, label='2 Colors'))
-
-        hbox1 = wx.BoxSizer(wx.HORIZONTAL)
-        hbox1.Add(wx.RadioButton(pnl, label='Custom'))
-        hbox1.Add(wx.TextCtrl(pnl), flag=wx.LEFT, border=5)
-        sbs.Add(hbox1)
-
-        pnl.SetSizer(sbs)
-
-        hbox2 = wx.BoxSizer(wx.HORIZONTAL)
-        okButton = wx.Button(self, label='Ok')
-        closeButton = wx.Button(self, label='Close')
-        hbox2.Add(okButton)
-        hbox2.Add(closeButton, flag=wx.LEFT, border=5)
-
-        vbox.Add(pnl, proportion=1, flag=wx.ALL|wx.EXPAND, border=5)
-        vbox.Add(hbox2, flag=wx.ALIGN_CENTER|wx.TOP|wx.BOTTOM, border=10)
-
-        self.SetSizer(vbox)
-
-        okButton.Bind(wx.EVT_BUTTON, self.OnClose)
-        closeButton.Bind(wx.EVT_BUTTON, self.OnClose)
-
-
-    def OnClose(self, e):
-
-        self.Destroy()
+from CDDconfig import *
 
 #----------------------------------------------------------------------
 #----------------------------------------------------------------------
-
 #----------------------------------------------------------------------
-class CDDconfig(object):
-    def __init__(self):
-        # lastdir=/home/scott/projects/weaving/cannwoven/data
-        # sizewidth=800
-        # sizeheight=600
-        # positionleft=100
-        # positiontop=100
-        # file0=path/filename
-        # file1=ojsjflahsdf
-        # file2=
-        # file3=
-        # file4=
-        self.ConfigFile = os.getcwd() + "/cdd.ini"
-        self.LastDir = os.getcwd()
-        self.SizeWidth = 800
-        self.SizeHeight = 600
-        self.PositionLeft = 100
-        self.PositionTop = 100
-        self.RecentWIF = []
-
-    def AddRecentWIFFile(self, filename):
-        # bump the file list insert the current
-        # only saving last five
-        self.RecentWIF.insert(0, filename)
-
-    def get(self):
-        # open file and get last dir and size
-        myFile = open(self.ConfigFile,'r')
-        for line in iter(myFile):
-            # print cur_line
-            cur_line = line.rstrip('\r\n')
-            if bool(cur_line):
-                if (cur_line[0:7] == "lastdir"):
-                    index = cur_line.find("=")
-                    key = cur_line[0:index]
-                    value = cur_line[index+1:]
-                    self.LastDir = value
-                elif (cur_line[0:9] == "sizewidth"):
-                    index = cur_line.find("=")
-                    key = cur_line[0:index]
-                    value = cur_line[index+1:]
-                    self.SizeWidth = int(value)
-                elif (cur_line[0:10] == "sizeheight"):
-                    index = cur_line.find("=")
-                    key = cur_line[0:index]
-                    value = cur_line[index+1:]
-                    self.SizeHeight = int(value)
-                elif (cur_line[0:12] == "positionleft"):
-                    index = cur_line.find("=")
-                    key = cur_line[0:index]
-                    value = cur_line[index+1:]
-                    self.PositionLeft = int(value)
-                elif (cur_line[0:11] == "positiontop"):
-                    index = cur_line.find("=")
-                    key = cur_line[0:index]
-                    value = cur_line[index+1:]
-                    self.PositionTop = int(value)
-                elif (cur_line[0:4] == "file"):
-                    index = cur_line.find("=")
-                    key = cur_line[0:index]
-                    value = cur_line[index+1:]
-                    self.RecentWIF.append(value)
-                else:
-                    pass
-
-        myFile.close()
-
-    def set(self):
-        # open file and write lastdir and  size
-        myFile = open(self.ConfigFile,'w')
-        lastdir = "lastdir=" + self.LastDir + "\n"
-        myFile.write(lastdir)
-        sw = "sizewidth=" + str(self.SizeWidth)  + "\n"
-        myFile.write(sw)
-        sh = "sizeheight="+ str(self.SizeHeight)  + "\n"
-        myFile.write(sh)
-        pl = "PositionLeft=" + str(self.PositionLeft)  + "\n"
-        myFile.write(pl)
-        pt = "positiontop=" + str(self.PositionTop)  + "\n"
-        myFile.write(pt)
-        file_count = len(self.RecentWIF)
-        # only save last five files
-        if file_count > 5:
-            file_count = 5
-        for fileindex in range(file_count):
-            # print self.RecentWIF[fileindex], fileindex
-            filewif = "file" + str(fileindex) + "=" + self.RecentWIF[fileindex] + "\n"
-            myFile.write(filewif)
-        myFile.close()
-
+#----------------------------------------------------------------------
 
 #----------------------------------------------------------------------
 class myFileDialog(wx.FileDialog):
@@ -238,7 +32,7 @@ class myFileDialog(wx.FileDialog):
 #----------------------------------------------------------------------
 
 
-
+#----------------------------------------------------------------------
 class MyForm(wx.Frame):
 
     def __init__(self):
@@ -265,7 +59,7 @@ class MyForm(wx.Frame):
         width = int(self.CDDConfig.SizeWidth)
         height = int(self.CDDConfig.SizeHeight)
         self.SetDimensions(left, top, width, height)
-
+        self.filehistory = wx.FileHistory(5)
 
         self.wif = Weaving_Info_File()
         self.panel = wx.Panel(self, wx.ID_ANY)
@@ -290,39 +84,43 @@ class MyForm(wx.Frame):
         self.status = self.CreateStatusBar()
 
         menubar.Append(filem, '&File')
-        open_file = wx.MenuItem(filem, ID_FILE_OPEN, '&Open WIF File')
-        open_file.SetBitmap(wx.Image('document-open.png',wx.BITMAP_TYPE_PNG).ConvertToBitmap())
+        open_file = wx.MenuItem(filem, wx.ID_OPEN, '&Open WIF File') # ID_FILE_OPEN
+        # open_file.SetBitmap(wx.Image('document-open.png',wx.BITMAP_TYPE_PNG).ConvertToBitmap())
+        filem.AppendItem(open_file)
 
+        # setup recent files
         for wiffile in self.CDDConfig.RecentWIF:
-            # recentfilesm.Append(ID_RECENT_FILES, file)
-            # self.Bind(wx.EVT_MENU, partial(self.Load_File, 1), menu_item_1)
+            item = wx.MenuItem
             item = wx.MenuItem(recentfilesm, ID_RECENT_FILES, wiffile)
             recentfilesm.Bind(wx.EVT_MENU, partial(self.Load_WIF_File, wiffile), source=item)
             recentfilesm.AppendItem(item)
-        # recent_files = wx.MenuItem(recentm, ID_RECENT_FILES, 'Recent WIF Files')
-        quit = wx.MenuItem(filem, ID_QUIT, '&Quit\tCtrl+W')
-        quit.SetBitmap(wx.Image('application-exit.png',wx.BITMAP_TYPE_PNG).ConvertToBitmap())
-        filem.AppendItem(open_file)
+
+        quit = wx.MenuItem(filem, wx.ID_EXIT, '&Quit\tCtrl+W') #ID_QUIT
+        # quit.SetBitmap(wx.Image('application-exit.png',wx.BITMAP_TYPE_PNG).ConvertToBitmap())
+
+        # close file and clear wif
+        self.close_file = wx.MenuItem(filem, wx.ID_CLOSE, '&Close WIF File') #ID_FILE_CLOSE
+        filem.AppendItem(self.close_file)
+        self.close_file.Enable(False)
         filem.AppendSeparator()
 
         recent_files = filem.AppendMenu(wx.ID_ANY, 'Recent WIF Files', recentfilesm)
-        # recent_files = wx.MenuItem(recentm, wx.ID_ANY, 'Recent WIF Files')
-        # recent_files.SetBitmap(wx.Image('document-open-recent.png',wx.BITMAP_TYPE_PNG).ConvertToBitmap())
-        # recent_files.AppendMenu(recentfilesm)
-        # filem.AppendItem(recent_files)
+
 
         filem.AppendSeparator()
         filem.AppendItem(quit)
 
-        self.Bind(wx.EVT_MENU, self.OnOpenFile, id=ID_FILE_OPEN)
-        #self.Bind(wx.EVT_MENU, self.OnOpenFile, id=ID_RECENT_FILES)
-        self.Bind(wx.EVT_MENU, self.OnQuit, id=ID_QUIT)
+        self.Bind(wx.EVT_MENU, self.OnOpenFile, id=wx.ID_OPEN)
+        self.Bind(wx.EVT_MENU, self.OnFileClose, id=wx.ID_CLOSE)
+
+        self.Bind(wx.EVT_MENU, self.OnQuit, id=wx.ID_EXIT)
 
         menubar.Append(editm, '&Edit')
 
         menubar.Append(toolsm, '&Tools')
-        view_wif = wx.MenuItem(toolsm, ID_TOOLS_VIEW_WIF, '&View WIF File')
-        toolsm.AppendItem(view_wif)
+        self.view_wif = wx.MenuItem(toolsm, ID_TOOLS_VIEW_WIF, '&View WIF File')
+        toolsm.AppendItem(self.view_wif)
+        self.view_wif.Enable(False)
         self.Bind(wx.EVT_MENU, self.OnViewWIF, id=ID_TOOLS_VIEW_WIF)
 
         helpm.Append(ID_ABOUT, '&About')
@@ -336,38 +134,54 @@ class MyForm(wx.Frame):
         '''
         display an about message
         '''
-        description = """Canns DrawDown.\n\nCreater - Scott L. Cann\nCopyright - Scott L. Cann 2015"""
-        dlg = wx.MessageDialog(self, description, "About", wx.OK | wx.ICON_INFORMATION)
-        dlg.ShowModal()
-        dlg.Destroy()
-        event.Skip()
+        description = """Canns DrawDown a simple drawdown application
+created by me to look at WIF patterns.
+Its a work in progress
+
+"""
+
+        licence = """Canns DrawDown is free software; you can redistribute
+it and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2 of the License,
+or (at your option) any later version.
+
+Cann DrawDown is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details. You should have
+received a copy of the GNU General Public License along with File Hunter;
+if not, write to the Free Software Foundation, Inc., 59 Temple Place,
+Suite 330, Boston, MA  02111-1307  USA"""
+
+        info = wx.AboutDialogInfo()
+
+        info.SetIcon(wx.Icon('grid-icon.png', wx.BITMAP_TYPE_PNG))
+        info.SetName('Canns DrawDown')
+        info.SetVersion('1.0')
+        info.SetDescription(description)
+        info.SetCopyright('(C) 2010 - 2015 Scott Cann')
+        # info.SetWebSite('http://www.zetcode.com')
+        info.SetLicence(licence)
+        info.AddDeveloper('Scott Cann')
+        # info.AddDocWriter('Scott Cann')
+        # info.AddArtist('Scott Cann')
+        # info.AddTranslator('Scott Cann')
+
+        wx.AboutBox(info)
 
     def OnViewWIF(self, event):
         '''
         display an WIF file
         '''
-        dia = MyDialog(self, -1, 'buttons')
-        dia.ShowModal()
-        dia.Destroy()
-        # if self.wif_file_name == "":
-        #     event.Skip()
-        #     pass
-        # print "|" + self.wif_file_name + "|"
-
-        # chgdep = ShowWeavingInfoFile(None, title='Show WIF')
-        # chgdep.ShowModal()
-        # chgdep.Destroy()
-
-        # # description = """WIF file \n""" + self.wif_file_name
-        # # dlg = wx.MessageDialog(self, description, "WIF File", wx.OK | wx.ICON_INFORMATION)
-        # # dlg.ShowModal()
-        # # dlg.Destroy()
+        wif = str(self.wif)
+        # print wif
+        filename = os.path.basename(self.wif_file_name)
+        description = "WIF file " + filename + "\n" + wif
+        dlg = wx.MessageDialog(self, description, "WIF File", wx.OK | wx.ICON_INFORMATION)
+        dlg.ShowModal()
+        dlg.Destroy()
         # event.Skip()
 
-    # def OnShowCustomDialog(self, event):
-    #     dia = MyDialog(self, -1, 'buttons')
-    #     dia.ShowModal()
-    #     dia.Destroy()
 
     def OnQuit(self, event):
         '''
@@ -401,8 +215,39 @@ class MyForm(wx.Frame):
             self.Load_WIF_File(wif_file, None)
         event.Skip()
 
+    def on_file_history(self, event):
+        fileNum = event.GetId() - wx.ID_FILE1
+        path = self.filehistory.GetHistoryFile(fileNum)
+        self.filehistory.AddFileToHistory(path)  # move up the list
+        # do whatever you want with the file path...
+
+    # def Load_WIF_File(self, wif_file):
+    #     self.wif_file_name = wif_file
+    #     # enable menu item
+    #     self.view_wif.Enable(True)
+    #     self.close_file.Enable(True)
+
+    #     # print "File name", self.wif_file_name
+    #     # self.canndrawWin.SetTitle(self.wif_file_name)
+    #     self.wif.clear_wif()
+    #     self.wif.read_wif(self.wif_file_name)
+    #     file_lines = ""
+    #     file_lines += "Version: " + self.wif.Version + "\n"
+    #     file_lines += "Developers: " + self.wif.Developers + "\n"
+    #     self.status.SetStatusText(str(self.wif.weaving))
+    #     # print self.wif.weaving
+    #     # print self.wif.warp
+
+    #     self.Create_Layout()
+    #     self.Load_Grids()
+
     def Load_WIF_File(self, wif_file, event):
         self.wif_file_name = wif_file
+        # enable menu item
+        self.view_wif.Enable(True)
+        self.close_file.Enable(True)
+
+
         # print "File name", self.wif_file_name
         # self.canndrawWin.SetTitle(self.wif_file_name)
         self.wif.clear_wif()
@@ -416,6 +261,29 @@ class MyForm(wx.Frame):
 
         self.Create_Layout()
         self.Load_Grids()
+
+    def OnFileClose(self, event):
+        # print "close"
+        self.close_file.Enable(False)
+        # clear wif
+        self.wif.clear_wif()
+        self.wif_file_name = ""
+        # disable view wif
+        self.view_wif.Enable(False)
+        # clear grids
+        self.Create_Layout()
+        self.Load_Grids()
+        # # self.threading_grid.Destroy()
+        # # self.tie_up_grid.Destroy()
+        # # self.treadling_grid.Destroy()
+        # # self.drawdown_grid.Destroy()
+
+        # # threading
+        # self.threading_grid.CreateGrid(SHAFTS + 1, ENDS)
+        # # no row labels
+        # self.threading_grid.SetRowLabelSize(0)
+        # # show thread count
+        # self.threading_grid.SetColLabelSize(CELL_SIZE_10)
 
     def Load_Grids(self):
         # -----------------------------------------------------------------------

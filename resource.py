@@ -6,6 +6,7 @@ to use in multiple modules
 '''
 ID_QUIT = wx.NewId()
 ID_FILE_OPEN = wx.NewId()
+ID_FILE_CLOSE = wx.NewId()
 ID_THREADING_GRID = wx.NewId()
 ID_TREADLING_GRID = wx.NewId()
 ID_TIEUP_GRID = wx.NewId()

@@ -159,6 +159,14 @@ class Weaving_Info_File(object):
         self.threading = Threading()
         self.treadling = Treadling()
         self.liftplan = Liftplan()
+    def __str__(self):
+        if (self.weaving.Rising_Shed):
+            ShedType = "Rising shed"
+        else:
+            ShedType = "Sinking shed"
+        msg = "Version: " + self.Version + "\nDate: " + self.Date + "\nDevelopers: " + self.Developers + "\nSource Program: " + self.Source_Program + "\nShafts: " + str(self.weaving.Shafts) + "\nTreadles " + str(self.weaving.Treadles) + "\n" + ShedType + "\nWarp Threads: " + str(self.warp.Threads) + "\nWeft Threads: " + str(self.weft.Threads)
+        return msg
+        # return str(self.weaving.Shafts) + " harnesses " + str(self.weaving.Treadles) + " treadles " + "Rising Shed is " + str(self.weaving.Rising_Shed)
 
     def read_wif(self, filename):
         '''

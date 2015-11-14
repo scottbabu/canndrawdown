@@ -24,7 +24,17 @@ class CDDconfig(object):
     def AddRecentWIFFile(self, filename):
         # bump the file list insert the current
         # only saving last five
-        self.RecentWIF.insert(0, filename)
+        # check if its in the  list
+        for fn in self.RecentWIF:
+            print "File-" + fn
+        if filename in self.RecentWIF:
+            #print "found " + filename
+            # already in the list don't duplicate
+            pass
+        else:
+            # print "not found " + filename
+            # so, add it
+            self.RecentWIF.insert(0, filename)
 
     def get(self):
         # open file and get last dir and size
