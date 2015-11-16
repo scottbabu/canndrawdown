@@ -41,7 +41,7 @@ class MyForm(wx.Frame):
         self.wif_file_name = ""
 
         # favicon = wx.Icon('favicon.ico', wx.BITMAP_TYPE_ICO, 16, 16)
-        favicon = wx.Icon('grid-icon.png', wx.BITMAP_TYPE_PNG)
+        favicon = wx.Icon('cdd-icon.png', wx.BITMAP_TYPE_PNG)
         wx.Frame.SetIcon(self, favicon)
         #open_file.SetBitmap(wx.Image('',wx.BITMAP_TYPE_PNG).ConvertToBitmap())
 
@@ -49,17 +49,28 @@ class MyForm(wx.Frame):
         # to set the size and location of the main window
         # the last directory use
         # the 5 most recent files looked at
-        self.CDDConfig = CDDconfig()
-        self.CDDConfig.get()
-
-        self.last_dir = self.CDDConfig.LastDir
-        left = int(self.CDDConfig.PositionLeft)
-        top = int(self.CDDConfig.PositionTop)
-        # print "left, top", left, top
-        width = int(self.CDDConfig.SizeWidth)
-        height = int(self.CDDConfig.SizeHeight)
-        self.SetDimensions(left, top, width, height)
         self.filehistory = wx.FileHistory(5)
+        #self.config = wx.Config("Your-Programs-Name", style=wx.CONFIG_USE_LOCAL_FILE)
+        self.config = wx.FileConfig(appName="CannsDrawDown", vendorName="CannWoven", localFilename="cdd.ini", style=wx.CONFIG_USE_LOCAL_FILE)
+        self.filehistory.Load(self.config)
+
+        # self.CDDConfig = CDDconfig()
+        # self.CDDConfig.get()
+
+        self.last_dir = self.config.Read("/Directory/LastDir")
+        # self.last_dir = self.CDDConfig.LastDir
+        left = self.config.ReadInt("/Location/PositionLeft")
+        top = self.config.ReadInt("/Location/PositionTop")
+        # print "left, top", left, top
+        width = self.config.ReadInt("/Location/SizeWidth")
+        height = self.config.ReadInt("/Location/SizeHeight")
+        # left = int(self.CDDConfig.PositionLeft)
+        # top = int(self.CDDConfig.PositionTop)
+        # # print "left, top", left, top
+        # width = int(self.CDDConfig.SizeWidth)
+        # height = int(self.CDDConfig.SizeHeight)
+        self.SetDimensions(left, top, width, height)
+
 
         self.wif = Weaving_Info_File()
         self.panel = wx.Panel(self, wx.ID_ANY)
@@ -88,12 +99,15 @@ class MyForm(wx.Frame):
         # open_file.SetBitmap(wx.Image('document-open.png',wx.BITMAP_TYPE_PNG).ConvertToBitmap())
         filem.AppendItem(open_file)
 
-        # setup recent files
-        for wiffile in self.CDDConfig.RecentWIF:
-            item = wx.MenuItem
-            item = wx.MenuItem(recentfilesm, ID_RECENT_FILES, wiffile)
-            recentfilesm.Bind(wx.EVT_MENU, partial(self.Load_WIF_File, wiffile), source=item)
-            recentfilesm.AppendItem(item)
+        # # setup recent files
+        # for wiffile in self.CDDConfig.RecentWIF:
+        #     item = wx.MenuItem
+        #     item = wx.MenuItem(recentfilesm, ID_RECENT_FILES, wiffile)
+        #     recentfilesm.Bind(wx.EVT_MENU, partial(self.Load_WIF_File, wiffile), source=item)
+        #     recentfilesm.AppendItem(item)
+        recent = wx.Menu()
+        self.filehistory.UseMenu(recent)
+        self.filehistory.AddFilesToMenu()
 
         quit = wx.MenuItem(filem, wx.ID_EXIT, '&Quit\tCtrl+W') #ID_QUIT
         # quit.SetBitmap(wx.Image('application-exit.png',wx.BITMAP_TYPE_PNG).ConvertToBitmap())
@@ -104,7 +118,9 @@ class MyForm(wx.Frame):
         self.close_file.Enable(False)
         filem.AppendSeparator()
 
-        recent_files = filem.AppendMenu(wx.ID_ANY, 'Recent WIF Files', recentfilesm)
+        filem.AppendMenu(wx.ID_ANY, '&Recent WIF Files', recent)
+        # recent_files = filem.AppendMenu(wx.ID_ANY, 'Recent WIF Files', recentfilesm)
+        self.Bind(wx.EVT_MENU_RANGE, self.on_file_history, id=wx.ID_FILE1, id2=wx.ID_FILE9)
 
 
         filem.AppendSeparator()
@@ -188,17 +204,23 @@ Suite 330, Boston, MA  02111-1307  USA"""
         save the position and size of the main app frame
         '''
         #self.config.save_position()
-        self.CDDConfig.LastDir = self.last_dir
+        # self.CDDConfig.LastDir = self.last_dir
+        self.config.Write("/Directory/LastDir", self.last_dir)
         top, left = self.GetScreenPositionTuple()
         width, height =  self.GetSizeTuple()
-        self.CDDConfig.PositionLeft = left
-        self.CDDConfig.PositionTop = top
-        self.CDDConfig.SizeWidth = width
-        self.CDDConfig.SizeHeight = height
+        self.config.WriteInt("/Location/SizeWidth", width)
+        self.config.WriteInt("/Location/SizeHeight",  height)
+        self.config.WriteInt("/Location/PositionLeft", left)
+        self.config.WriteInt("/Location/PositionTop", top)
+        # self.CDDConfig.PositionLeft = left
+        # self.CDDConfig.PositionTop = top
+        # self.CDDConfig.SizeWidth = width
+        # self.CDDConfig.SizeHeight = height
         # print "top", top, "left", left
         # print "width", width, "height", height
 
-        self.CDDConfig.set()
+        # self.CDDConfig.set()
+        self.config.Flush()
         self.Destroy()
 
     def OnOpenFile(self, event):
@@ -210,16 +232,22 @@ Suite 330, Boston, MA  02111-1307  USA"""
         if wif_file == None:
             wx.MessageBox("No WIF file selected")
         else:
-            self.CDDConfig.AddRecentWIFFile(wif_file)
+            self.filehistory.AddFileToHistory(wif_file)
+            self.filehistory.Save(self.config)
+            self.config.Flush()
+
+            # self.CDDConfig.AddRecentWIFFile(wif_file)
             self.last_dir = os.path.dirname(wif_file)
             self.Load_WIF_File(wif_file, None)
         event.Skip()
 
     def on_file_history(self, event):
         fileNum = event.GetId() - wx.ID_FILE1
-        path = self.filehistory.GetHistoryFile(fileNum)
-        self.filehistory.AddFileToHistory(path)  # move up the list
+        wif_file = self.filehistory.GetHistoryFile(fileNum)
+        # self.filehistory.AddFileToHistory(path)  # move up the list
         # do whatever you want with the file path...
+        # self.config.Flush()
+        self.Load_WIF_File(wif_file, None)
 
     # def Load_WIF_File(self, wif_file):
     #     self.wif_file_name = wif_file
