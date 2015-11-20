@@ -4,10 +4,9 @@ import os
 import string
 
 from functools import partial
-# import functools
 from resource import *
 from WIF import *
-from CDDconfig import *
+# from CDDconfig import *
 
 #----------------------------------------------------------------------
 #----------------------------------------------------------------------
@@ -40,48 +39,39 @@ class MyForm(wx.Frame):
         # pos=(100,100),
         self.wif_file_name = ""
 
-        # favicon = wx.Icon('favicon.ico', wx.BITMAP_TYPE_ICO, 16, 16)
         favicon = wx.Icon('cdd-icon.png', wx.BITMAP_TYPE_PNG)
         wx.Frame.SetIcon(self, favicon)
-        #open_file.SetBitmap(wx.Image('',wx.BITMAP_TYPE_PNG).ConvertToBitmap())
-
         # get the data from the ini file
         # to set the size and location of the main window
         # the last directory use
         # the 5 most recent files looked at
         self.filehistory = wx.FileHistory(5)
-        #self.config = wx.Config("Your-Programs-Name", style=wx.CONFIG_USE_LOCAL_FILE)
         self.config = wx.FileConfig(appName="CannsDrawDown", vendorName="CannWoven", localFilename="cdd.ini", style=wx.CONFIG_USE_LOCAL_FILE)
         self.filehistory.Load(self.config)
 
-        # self.CDDConfig = CDDconfig()
-        # self.CDDConfig.get()
-
-        self.last_dir = self.config.Read("/Directory/LastDir")
-        # self.last_dir = self.CDDConfig.LastDir
-        left = self.config.ReadInt("/Location/PositionLeft")
-        top = self.config.ReadInt("/Location/PositionTop")
+        app_path = os.path.abspath('')  
+        self.last_dir = self.config.Read("/Directory/LastDir", app_path)
+        left = self.config.ReadInt("/Location/PositionLeft", 50)
+        top = self.config.ReadInt("/Location/PositionTop", 75)
         # print "left, top", left, top
-        width = self.config.ReadInt("/Location/SizeWidth")
-        height = self.config.ReadInt("/Location/SizeHeight")
-        # left = int(self.CDDConfig.PositionLeft)
-        # top = int(self.CDDConfig.PositionTop)
-        # # print "left, top", left, top
-        # width = int(self.CDDConfig.SizeWidth)
-        # height = int(self.CDDConfig.SizeHeight)
+        width = self.config.ReadInt("/Location/SizeWidth", 800)
+        height = self.config.ReadInt("/Location/SizeHeight", 600)
+
         self.SetDimensions(left, top, width, height)
 
 
         self.wif = Weaving_Info_File()
         self.panel = wx.Panel(self, wx.ID_ANY)
         self.InitUI()
-        # self.Centre()
+
         self.Show()
+#----------------------------------------------------------------------
 
     def InitUI(self):
         self.Create_Menu()
         self.Create_Layout()
 
+#----------------------------------------------------------------------
     def Create_Menu(self):
         # resently open files?
         menubar = wx.MenuBar()
@@ -96,21 +86,15 @@ class MyForm(wx.Frame):
 
         menubar.Append(filem, '&File')
         open_file = wx.MenuItem(filem, wx.ID_OPEN, '&Open WIF File') # ID_FILE_OPEN
-        # open_file.SetBitmap(wx.Image('document-open.png',wx.BITMAP_TYPE_PNG).ConvertToBitmap())
+
         filem.AppendItem(open_file)
 
         # # setup recent files
-        # for wiffile in self.CDDConfig.RecentWIF:
-        #     item = wx.MenuItem
-        #     item = wx.MenuItem(recentfilesm, ID_RECENT_FILES, wiffile)
-        #     recentfilesm.Bind(wx.EVT_MENU, partial(self.Load_WIF_File, wiffile), source=item)
-        #     recentfilesm.AppendItem(item)
         recent = wx.Menu()
         self.filehistory.UseMenu(recent)
         self.filehistory.AddFilesToMenu()
 
         quit = wx.MenuItem(filem, wx.ID_EXIT, '&Quit\tCtrl+W') #ID_QUIT
-        # quit.SetBitmap(wx.Image('application-exit.png',wx.BITMAP_TYPE_PNG).ConvertToBitmap())
 
         # close file and clear wif
         self.close_file = wx.MenuItem(filem, wx.ID_CLOSE, '&Close WIF File') #ID_FILE_CLOSE
@@ -119,9 +103,7 @@ class MyForm(wx.Frame):
         filem.AppendSeparator()
 
         filem.AppendMenu(wx.ID_ANY, '&Recent WIF Files', recent)
-        # recent_files = filem.AppendMenu(wx.ID_ANY, 'Recent WIF Files', recentfilesm)
         self.Bind(wx.EVT_MENU_RANGE, self.on_file_history, id=wx.ID_FILE1, id2=wx.ID_FILE9)
-
 
         filem.AppendSeparator()
         filem.AppendItem(quit)
@@ -146,6 +128,7 @@ class MyForm(wx.Frame):
 
         self.SetMenuBar(menubar)
 
+#----------------------------------------------------------------------
     def OnAboutBox(self, event):
         '''
         display an about message
@@ -161,7 +144,7 @@ it and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-Cann DrawDown is distributed in the hope that it will be useful,
+Canns DrawDown is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 See the GNU General Public License for more details. You should have
@@ -171,20 +154,21 @@ Suite 330, Boston, MA  02111-1307  USA"""
 
         info = wx.AboutDialogInfo()
 
-        info.SetIcon(wx.Icon('grid-icon.png', wx.BITMAP_TYPE_PNG))
-        info.SetName('Canns DrawDown')
-        info.SetVersion('1.0')
+        info.SetIcon(wx.Icon('cdd-icon.png', wx.BITMAP_TYPE_PNG))
+        info.SetName(APP_NAME)
+        info.SetVersion(APP_VERSION)
         info.SetDescription(description)
-        info.SetCopyright('(C) 2010 - 2015 Scott Cann')
+        info.SetCopyright(APP_COPYRIGHT)
         # info.SetWebSite('http://www.zetcode.com')
         info.SetLicence(licence)
-        info.AddDeveloper('Scott Cann')
+        info.AddDeveloper(APP_DEVELOPER)
         # info.AddDocWriter('Scott Cann')
         # info.AddArtist('Scott Cann')
         # info.AddTranslator('Scott Cann')
 
         wx.AboutBox(info)
 
+#----------------------------------------------------------------------
     def OnViewWIF(self, event):
         '''
         display an WIF file
@@ -199,12 +183,12 @@ Suite 330, Boston, MA  02111-1307  USA"""
         # event.Skip()
 
 
+#----------------------------------------------------------------------
     def OnQuit(self, event):
         '''
         save the position and size of the main app frame
         '''
-        #self.config.save_position()
-        # self.CDDConfig.LastDir = self.last_dir
+
         self.config.Write("/Directory/LastDir", self.last_dir)
         top, left = self.GetScreenPositionTuple()
         width, height =  self.GetSizeTuple()
@@ -212,17 +196,11 @@ Suite 330, Boston, MA  02111-1307  USA"""
         self.config.WriteInt("/Location/SizeHeight",  height)
         self.config.WriteInt("/Location/PositionLeft", left)
         self.config.WriteInt("/Location/PositionTop", top)
-        # self.CDDConfig.PositionLeft = left
-        # self.CDDConfig.PositionTop = top
-        # self.CDDConfig.SizeWidth = width
-        # self.CDDConfig.SizeHeight = height
-        # print "top", top, "left", left
-        # print "width", width, "height", height
 
-        # self.CDDConfig.set()
         self.config.Flush()
         self.Destroy()
 
+#----------------------------------------------------------------------
     def OnOpenFile(self, event):
         #
         open_file = myFileDialog(self)
@@ -236,60 +214,36 @@ Suite 330, Boston, MA  02111-1307  USA"""
             self.filehistory.Save(self.config)
             self.config.Flush()
 
-            # self.CDDConfig.AddRecentWIFFile(wif_file)
             self.last_dir = os.path.dirname(wif_file)
             self.Load_WIF_File(wif_file, None)
         event.Skip()
 
+#----------------------------------------------------------------------
     def on_file_history(self, event):
         fileNum = event.GetId() - wx.ID_FILE1
         wif_file = self.filehistory.GetHistoryFile(fileNum)
-        # self.filehistory.AddFileToHistory(path)  # move up the list
-        # do whatever you want with the file path...
-        # self.config.Flush()
         self.Load_WIF_File(wif_file, None)
 
-    # def Load_WIF_File(self, wif_file):
-    #     self.wif_file_name = wif_file
-    #     # enable menu item
-    #     self.view_wif.Enable(True)
-    #     self.close_file.Enable(True)
-
-    #     # print "File name", self.wif_file_name
-    #     # self.canndrawWin.SetTitle(self.wif_file_name)
-    #     self.wif.clear_wif()
-    #     self.wif.read_wif(self.wif_file_name)
-    #     file_lines = ""
-    #     file_lines += "Version: " + self.wif.Version + "\n"
-    #     file_lines += "Developers: " + self.wif.Developers + "\n"
-    #     self.status.SetStatusText(str(self.wif.weaving))
-    #     # print self.wif.weaving
-    #     # print self.wif.warp
-
-    #     self.Create_Layout()
-    #     self.Load_Grids()
-
+#----------------------------------------------------------------------
     def Load_WIF_File(self, wif_file, event):
         self.wif_file_name = wif_file
         # enable menu item
         self.view_wif.Enable(True)
         self.close_file.Enable(True)
-
-
-        # print "File name", self.wif_file_name
-        # self.canndrawWin.SetTitle(self.wif_file_name)
+        
         self.wif.clear_wif()
         self.wif.read_wif(self.wif_file_name)
         file_lines = ""
         file_lines += "Version: " + self.wif.Version + "\n"
         file_lines += "Developers: " + self.wif.Developers + "\n"
-        self.status.SetStatusText(str(self.wif.weaving))
+        self.status.SetStatusText(wif_file + " " + str(self.wif.weaving))
         # print self.wif.weaving
         # print self.wif.warp
 
         self.Create_Layout()
         self.Load_Grids()
 
+#----------------------------------------------------------------------
     def OnFileClose(self, event):
         # print "close"
         self.close_file.Enable(False)
@@ -313,6 +267,7 @@ Suite 330, Boston, MA  02111-1307  USA"""
         # # show thread count
         # self.threading_grid.SetColLabelSize(CELL_SIZE_10)
 
+#----------------------------------------------------------------------
     def Load_Grids(self):
         # -----------------------------------------------------------------------
         # threading
@@ -378,22 +333,23 @@ Suite 330, Boston, MA  02111-1307  USA"""
         # do drawdown
         # self.drawdown_grid
         # loop through treadles
-        for pick in self.wif.treadling.treadles:
-            # print "pick| treadle", pick, self.wif.treadling.treadles[pick].treadle
-            treadle = self.wif.treadling.treadles[pick].treadle
-            row = pick - 1
-            #    loop through tie-up
-            for tie_up_shaft in self.wif.tieup.treadle[treadle]:
-                #       get shafts
-                # print "shaft", tie_up_shaft
-                #       loop through threads
-                for thread in self.wif.threading.threads:
-                    #          if shaft make mark
-                    col = thread - 1
-                    if (tie_up_shaft == self.wif.threading.threads[thread].Shaft):
-                        # print self.wif.threading.threads[thread].Shaft
-                        self.drawdown_grid.SetCellBackgroundColour(row, col, wx.BLACK)
+        # for pick in self.wif.treadling.treadles:
+        #     # print "pick| treadle", pick, self.wif.treadling.treadles[pick].treadle
+        #     treadle = self.wif.treadling.treadles[pick].treadle
+        #     row = pick - 1
+        #     #    loop through tie-up
+        #     for tie_up_shaft in self.wif.tieup.treadle[treadle]:
+        #         #       get shafts
+        #         # print "shaft", tie_up_shaft
+        #         #       loop through threads
+        #         for thread in self.wif.threading.threads:
+        #             #          if shaft make mark
+        #             col = thread - 1
+        #             if (tie_up_shaft == self.wif.threading.threads[thread].Shaft):
+        #                 # print self.wif.threading.threads[thread].Shaft
+        #                 self.drawdown_grid.SetCellBackgroundColour(row, col, wx.BLACK)
 
+#----------------------------------------------------------------------
     def Create_Layout(self):
         curShafts = SHAFTS + 1
         curEnds = ENDS
@@ -426,13 +382,13 @@ Suite 330, Boston, MA  02111-1307  USA"""
             curPicks = self.wif.weft.Threads
             curTreadles = self.wif.weaving.Treadles
 
-
-        if (self.wif.warp.Threads < 100):
-            CellSize = CELL_SIZE_10
-        elif(self.wif.warp.Threads < 1000):
-            CellSize = CELL_SIZE_100
-        else:
-            CellSize = CELL_SIZE_1000
+        CellSize = CELL_SIZE_10
+        # if (self.wif.warp.Threads < 100):
+        #      CellSize = CELL_SIZE_10
+        # elif(self.wif.warp.Threads < 1000):
+        #     CellSize = CELL_SIZE_100
+        # else:
+        #     CellSize = CELL_SIZE_1000
         # -----------------------------------------------------------------------
         # threading
         self.threading_grid = gridlib.Grid(self.panel, ID_THREADING_GRID)
@@ -445,7 +401,13 @@ Suite 330, Boston, MA  02111-1307  USA"""
         self.threading_grid.SetRowLabelSize(0)
         # show thread count
         self.threading_grid.SetColLabelSize(CellSize)
-
+        numbers_font = wx.Font(7, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+        # font = wx.Font(size, families[family], styles[style], weights[weight])
+        self.threading_grid.SetLabelFont(numbers_font)
+        # SetLabelFont
+        # SetLabelTextColour
+        # SetLabelBackgroundColour
+        
         # print  wx.BLACK
         # self.threading.colour[7] = wx.CYAN
 
@@ -475,7 +437,7 @@ Suite 330, Boston, MA  02111-1307  USA"""
 
         self.tie_up_grid.SetRowLabelSize(0)
         self.tie_up_grid.SetColLabelSize(CellSize)
-
+        self.tie_up_grid.SetLabelFont(numbers_font)
 
         # set col size and label with treadle number
         for c in xrange(self.tie_up_grid.GetNumberCols()):
@@ -564,6 +526,7 @@ Suite 330, Boston, MA  02111-1307  USA"""
             self.treadling_grid.Scroll(-1, event.Position)
         event.Skip()
 
+#----------------------------------------------------------------------
     def OnScrollTreadle(self, event):
         if event.Orientation == wx.SB_VERTICAL:
         #     self.drawdown_grid.Scroll(event.Position, -1)
@@ -571,6 +534,7 @@ Suite 330, Boston, MA  02111-1307  USA"""
             self.drawdown_grid.Scroll(-1, event.Position)
         event.Skip()
 
+#----------------------------------------------------------------------
     # link threading and drawdown grids to scroll together horizontally
     def OnHScrollDrawdown(self, event):
         if event.Orientation == wx.SB_HORIZONTAL:
@@ -579,6 +543,7 @@ Suite 330, Boston, MA  02111-1307  USA"""
             pass
         event.Skip()
 
+#----------------------------------------------------------------------
     def OnHScrollThreading(self, event):
         if event.Orientation == wx.SB_HORIZONTAL:
             self.drawdown_grid.Scroll(event.Position, -1)
@@ -589,6 +554,7 @@ Suite 330, Boston, MA  02111-1307  USA"""
         # self.threading_grid.Bind(wx.EVT_SCROLLWIN, self.OnHScrollThreading)
     #----------------------------------------------------------------------
 
+#----------------------------------------------------------------------
     # left click on the threading grid to thread the harness
     def OnCellLeftClick(self, evt):
         """
@@ -622,6 +588,7 @@ Suite 330, Boston, MA  02111-1307  USA"""
         evt.Skip()
     #----------------------------------------------------------------------
 
+#----------------------------------------------------------------------
     # hook up the peddles to the harness
     def OnTieupCellLeftClick(self, evt):
         row = evt.GetRow()
@@ -640,6 +607,7 @@ Suite 330, Boston, MA  02111-1307  USA"""
 
         evt.Skip()
 
+#----------------------------------------------------------------------
     # unhook harnes from peddle
     def OnTieupCellRightClick(self, evt):
         row = evt.GetRow()
@@ -660,6 +628,7 @@ Suite 330, Boston, MA  02111-1307  USA"""
 
     #----------------------------------------------------------------------
 
+#----------------------------------------------------------------------
     # not being used
     def showPopupMenu(self, event):
         """

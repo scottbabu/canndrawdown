@@ -19,10 +19,17 @@ ID_RECENT_FILES = wx.NewId()
 
 SHAFTS = 8
 ENDS = 64
+CELL_SIZE_1 = 18
 CELL_SIZE_10 = 20
 CELL_SIZE_100 = 30
 CELL_SIZE_1000 = 40
 # #----------------------------------------------------------------------
+APP_NAME = "Canns DrawDown"
+APP_VERSION = "1.0"
+APP_COPYRIGHT = "(C) 2010 - 2015 Scott Cann"
+APP_DEVELOPER = "Scott Cann"
+# #----------------------------------------------------------------------
+
 
 WIF_SECTION_COMMENT = "Comment"
 WIF_SECTION_WIF = "Wif"
