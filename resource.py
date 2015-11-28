@@ -14,7 +14,10 @@ ID_DRAWDOWN_GRID = wx.NewId()
 ID_ABOUT = wx.NewId()
 ID_TOOLS_VIEW_WIF = wx.NewId()
 ID_RECENT_FILES = wx.NewId()
-
+ID_SET_WARP_THREADS = wx.NewId()
+ID_SET_WEFT_PICKS = wx.NewId()
+ID_SET_SHAFT_COUNT = wx.NewId()
+ID_SET_TREADLE_COUNT = wx.NewId()
 # #----------------------------------------------------------------------
 
 SHAFTS = 8
@@ -30,7 +33,23 @@ APP_COPYRIGHT = "(C) 2010 - 2015 Scott Cann"
 APP_DEVELOPER = "Scott Cann"
 # #----------------------------------------------------------------------
 
+# #----------------------------------------------------------------------
+# used in SetShaftCountDialog in cannsdrawdown.py
+LOOM_SHAFT_COUNT_LIST = ["2","4","8","12","16","24","30","40"]
+LOOM_TREADLE_COUNT_LIST = ["2","4","6","10","12","14","18","24"]
+LOOM_SHED_TYPE = ["Jack","Counter Balance","Counter March","Rising Shed","Sinking Shed"]
+LOOM_RISING_SHED =  ["Jack","Rising Shed"]
+LOOM_SINKING_SHED =  ["Counter Balance","Counter March","Sinking Shed"]
 
+# #----------------------------------------------------------------------
+WARP_THREADING = "Straight Draw","Pointed Twill","Rose Path","Broken Twill"
+WARP_THREADING_STRAIGHT_DRAW_4 = [1,2,3,4] # repeat for all threads
+WARP_THREADING_STRAIGHT_DRAW_8 = [1,2,3,4,5,6,7,8]
+WARP_THREADING_STRAIGHT_DRAW_12 = [1,2,3,4,5,6,7,8,9,10,11,12]
+WARP_THREADING_STRAIGHT_DRAW_16 = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+# #----------------------------------------------------------------------
+# #----------------------------------------------------------------------
+# WIF CONTENTS
 WIF_SECTION_COMMENT = "Comment"
 WIF_SECTION_WIF = "Wif"
 

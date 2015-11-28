@@ -1,4 +1,5 @@
 from resource import *
+from Utils import *
 
 '''
 WIF main file and all the other classes
@@ -90,6 +91,7 @@ class WIF(object):
             # if the section isn't there
             return None
 
+    
     def get_boolean(self, section, key):
         '''
         from the list self.wif get the value from section key
@@ -98,15 +100,16 @@ class WIF(object):
         num = 0
         if section in self.wif:
             if key in self.wif[section]:
-                curVal = str(self.wif[section][key])
-                if (curVal.upper() == "TRUE"):
-                    return True
-                elif (curVal.upper() == "ON"):
-                    return True
-                elif (curVal.upper() == "YES"):
-                    return True
-                elif (curVal.upper() == "1"):
-                    return True
+                return str2bool(str(self.wif[section][key]))
+                # curVal = str(self.wif[section][key])
+                # if (curVal.upper() == "TRUE"):
+                #     return True
+                # elif (curVal.upper() == "ON"):
+                #     return True
+                # elif (curVal.upper() == "YES"):
+                #     return True
+                # elif (curVal.upper() == "1"):
+                #     return True
             else:
                 # if nothing on the list (true, on, yes, 1) is found
                 return False
@@ -280,7 +283,7 @@ class Weaving_Info_File(object):
         for key in self.config.wif[WIF_SECTION_CONTENTS]:
             curVal = False
             curVal = self.config.get_boolean(WIF_SECTION_CONTENTS, key)
-            # print key
+            # print key, curVal
             self.contents[key] = curVal
 
     def clear_contents(self):
@@ -329,7 +332,7 @@ class Weaving(object):
         self.Shafts = config.get_int(WIF_SECTION_WEAVING, WIF_SECTION_WEAVING_SHAFTS)
         self.Treadles = config.get_int(WIF_SECTION_WEAVING, WIF_SECTION_WEAVING_TREADLES)
         self.Rising_Shed = config.get_boolean(WIF_SECTION_WEAVING,WIF_SECTION_WEAVING_RISING_SHED)
-
+        # print self.Rising_Shed
 
 # WARP
 class Warp_Weft(object):

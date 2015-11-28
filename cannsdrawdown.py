@@ -2,10 +2,12 @@ import wx
 import wx.grid as gridlib
 import os
 import string
-
 from functools import partial
+
 from resource import *
 from WIF import *
+from Utils import *
+from CDDDialogs import *
 # from CDDconfig import *
 
 #----------------------------------------------------------------------
@@ -51,6 +53,15 @@ class MyForm(wx.Frame):
 
         app_path = os.path.abspath('')  
         self.last_dir = self.config.Read("/Directory/LastDir", app_path)
+        # 
+        self.Shafts = self.config.ReadInt("/Loom/Shafts", 8)
+        self.Treadles = self.config.ReadInt("/Loom/Treadles", 10)
+        self.ShedType = self.config.Read("/Loom/ShedType", "Jack")
+        # self.Shafts = self.config.ReadInt("/DrawDown/Shafts", 8)
+        # self.Treadles = self.config.ReadInt("/DrawDown/Treadles", 10)
+        self.WeftThreads = self.config.ReadInt("/DrawDown/WeftThreads", 64)
+        self.WarpThreads = self.config.ReadInt("/DrawDown/WarpThreads", 64)
+        
         left = self.config.ReadInt("/Location/PositionLeft", 50)
         top = self.config.ReadInt("/Location/PositionTop", 75)
         # print "left, top", left, top
@@ -65,25 +76,30 @@ class MyForm(wx.Frame):
         self.InitUI()
 
         self.Show()
-#----------------------------------------------------------------------
+    #----------------------------------------------------------------------
 
     def InitUI(self):
         self.Create_Menu()
         self.Create_Layout()
 
-#----------------------------------------------------------------------
+    #----------------------------------------------------------------------
     def Create_Menu(self):
         # resently open files?
         menubar = wx.MenuBar()
         filem = wx.Menu()
         recentm = wx.Menu()
         editm = wx.Menu()
+        warpm = wx.Menu()
+        weftm = wx.Menu()
+        tieupm = wx.Menu()
+        treadlem = wx.Menu()
+        loomm = wx.Menu()
         toolsm = wx.Menu()
         helpm = wx.Menu()
         recentfilesm = wx.Menu()
 
         self.status = self.CreateStatusBar()
-
+        #----------------------------------------------------------------------
         menubar.Append(filem, '&File')
         open_file = wx.MenuItem(filem, wx.ID_OPEN, '&Open WIF File') # ID_FILE_OPEN
 
@@ -103,7 +119,7 @@ class MyForm(wx.Frame):
         filem.AppendSeparator()
 
         filem.AppendMenu(wx.ID_ANY, '&Recent WIF Files', recent)
-        self.Bind(wx.EVT_MENU_RANGE, self.on_file_history, id=wx.ID_FILE1, id2=wx.ID_FILE9)
+        self.Bind(wx.EVT_MENU_RANGE, self.OnFileHistory, id=wx.ID_FILE1, id2=wx.ID_FILE9)
 
         filem.AppendSeparator()
         filem.AppendItem(quit)
@@ -112,14 +128,44 @@ class MyForm(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnFileClose, id=wx.ID_CLOSE)
 
         self.Bind(wx.EVT_MENU, self.OnQuit, id=wx.ID_EXIT)
-
+        #----------------------------------------------------------------------
         menubar.Append(editm, '&Edit')
+        #----------------------------------------------------------------------
+        # Warp
+        menubar.Append(warpm, 'Warp')
+        set_thread_count = wx.MenuItem(warpm, ID_SET_WARP_THREADS, '&Set Warp Threads')
+        warpm.AppendItem(set_thread_count)
+        self.Bind(wx.EVT_MENU, self.OnSetWarpThreads, id=ID_SET_WARP_THREADS)
+        
+        #----------------------------------------------------------------------
+        # Weft
+        menubar.Append(weftm, 'Weft')
+        set_pick_count = wx.MenuItem(warpm, ID_SET_WEFT_PICKS, '&Set Weft Pick')
+        weftm.AppendItem(set_pick_count)
+        self.Bind(wx.EVT_MENU, self.OnSetWeftPicks, id=ID_SET_WEFT_PICKS)
+        
+        
+        #----------------------------------------------------------------------
+        # Tie up
+        menubar.Append(tieupm, 'Tie Up')
+        #----------------------------------------------------------------------
+        # Treadle
+        menubar.Append(treadlem, 'Treadle')
+        #----------------------------------------------------------------------
+        # loom - shafts, treadles, rising shed(jack, counter balance, counter marche)
+        menubar.Append(loomm, 'Loom')
+        set_shaft_count = wx.MenuItem(loomm, ID_SET_SHAFT_COUNT, '&Set Up Loom')
+        loomm.AppendItem(set_shaft_count)
+        self.Bind(wx.EVT_MENU, self.OnSetShaftCount, id=ID_SET_SHAFT_COUNT)
 
+        #----------------------------------------------------------------------
         menubar.Append(toolsm, '&Tools')
         self.view_wif = wx.MenuItem(toolsm, ID_TOOLS_VIEW_WIF, '&View WIF File')
         toolsm.AppendItem(self.view_wif)
         self.view_wif.Enable(False)
         self.Bind(wx.EVT_MENU, self.OnViewWIF, id=ID_TOOLS_VIEW_WIF)
+        
+        
 
         helpm.Append(ID_ABOUT, '&About')
         self.Bind(wx.EVT_MENU, self.OnAboutBox, id=ID_ABOUT)
@@ -196,6 +242,14 @@ Suite 330, Boston, MA  02111-1307  USA"""
         self.config.WriteInt("/Location/SizeHeight",  height)
         self.config.WriteInt("/Location/PositionLeft", left)
         self.config.WriteInt("/Location/PositionTop", top)
+        # self.config.WriteInt("/DrawDown/Shafts", self.Shafts)
+        # self.config.WriteInt("/DrawDown/Treadles", self.Treadles)
+        self.config.WriteInt("/DrawDown/WarpThreads", self.WarpThreads)
+        self.config.WriteInt("/DrawDown/WeftThreads", self.WeftThreads)
+        self.config.WriteInt("/Loom/Shafts", self.Shafts)
+        self.config.WriteInt("/Loom/Treadles", self.Treadles)
+        self.config.Write("/Loom/ShedType", self.ShedType)
+
 
         self.config.Flush()
         self.Destroy()
@@ -219,7 +273,7 @@ Suite 330, Boston, MA  02111-1307  USA"""
         event.Skip()
 
 #----------------------------------------------------------------------
-    def on_file_history(self, event):
+    def OnFileHistory(self, event):
         fileNum = event.GetId() - wx.ID_FILE1
         wif_file = self.filehistory.GetHistoryFile(fileNum)
         self.Load_WIF_File(wif_file, None)
@@ -233,6 +287,11 @@ Suite 330, Boston, MA  02111-1307  USA"""
         
         self.wif.clear_wif()
         self.wif.read_wif(self.wif_file_name)
+        # self.Shafts = self.wif.weaving.Shafts
+        # self.Treadles = self.wif.weaving.Treadles
+        # self.WarpThreads = self.wif.warp.Threads
+        # self.WeftThreads = self.wif.weft.Threads
+
         file_lines = ""
         file_lines += "Version: " + self.wif.Version + "\n"
         file_lines += "Developers: " + self.wif.Developers + "\n"
@@ -333,28 +392,34 @@ Suite 330, Boston, MA  02111-1307  USA"""
         # do drawdown
         # self.drawdown_grid
         # loop through treadles
-        # for pick in self.wif.treadling.treadles:
-        #     # print "pick| treadle", pick, self.wif.treadling.treadles[pick].treadle
-        #     treadle = self.wif.treadling.treadles[pick].treadle
-        #     row = pick - 1
-        #     #    loop through tie-up
-        #     for tie_up_shaft in self.wif.tieup.treadle[treadle]:
-        #         #       get shafts
-        #         # print "shaft", tie_up_shaft
-        #         #       loop through threads
-        #         for thread in self.wif.threading.threads:
-        #             #          if shaft make mark
-        #             col = thread - 1
-        #             if (tie_up_shaft == self.wif.threading.threads[thread].Shaft):
-        #                 # print self.wif.threading.threads[thread].Shaft
-        #                 self.drawdown_grid.SetCellBackgroundColour(row, col, wx.BLACK)
+        for pick in self.wif.treadling.treadles:
+            # print "pick |  treadle", pick, type(self.wif.treadling.treadles[pick].treadle)
+            treadle = self.wif.treadling.treadles[pick].treadle
+            if (treadle == 0):
+                pass
+            else:
+                row = pick - 1
+                #    loop through tie-up
+                for tie_up_shaft in self.wif.tieup.treadle[treadle]:
+                    if(tie_up_shaft == "0"):
+                        pass
+                    else:
+                        #       get shafts
+                        # print "shaft", tie_up_shaft
+                        #       loop through threads
+                        for thread in self.wif.threading.threads:
+                            #          if shaft make mark
+                            col = thread - 1
+                            if (tie_up_shaft == self.wif.threading.threads[thread].Shaft):
+                                # print self.wif.threading.threads[thread].Shaft
+                                self.drawdown_grid.SetCellBackgroundColour(row, col, wx.BLACK)
 
 #----------------------------------------------------------------------
     def Create_Layout(self):
-        curShafts = SHAFTS + 1
-        curEnds = ENDS
-        curTreadles = SHAFTS
-        curPicks = ENDS
+        curShafts = self.Shafts + 1
+        curEnds = self.WarpThreads
+        curTreadles = self.Treadles
+        curPicks = self.WeftThreads
 
         # Add a panel so it looks the correct on all platforms
         self.panel.SetBackgroundColour('#4f5049')
@@ -396,7 +461,7 @@ Suite 330, Boston, MA  02111-1307  USA"""
         self.threading_grid.CreateGrid(curShafts, curEnds)
 
 
-        self.Bind(gridlib.EVT_GRID_CELL_LEFT_CLICK, self.OnCellLeftClick, id=ID_THREADING_GRID)
+        # self.Bind(gridlib.EVT_GRID_CELL_LEFT_CLICK, self.OnCellLeftClick, id=ID_THREADING_GRID)
         # no row labels
         self.threading_grid.SetRowLabelSize(0)
         # show thread count
@@ -458,7 +523,7 @@ Suite 330, Boston, MA  02111-1307  USA"""
         # -----------------------------------------------------------------------
         # drawdown grid
         self.drawdown_grid = gridlib.Grid(self.panel, ID_DRAWDOWN_GRID)
-        self.drawdown_grid.CreateGrid(curEnds, curPicks)
+        self.drawdown_grid.CreateGrid(curPicks, curEnds)
 
         self.drawdown_grid.SetRowLabelSize(0)
         self.drawdown_grid.SetColLabelSize(0)
@@ -513,9 +578,6 @@ Suite 330, Boston, MA  02111-1307  USA"""
 
         self.panel.SetSizer(main_box)
         self.panel.Layout()
-
-    #----------------------------------------------------------------------
-
 
     #----------------------------------------------------------------------
     # link treadle and drawdown grids to scroll together
@@ -652,6 +714,123 @@ Suite 330, Boston, MA  02111-1307  USA"""
         self.PopupMenu(menu)
         menu.Destroy()
     #----------------------------------------------------------------------
+    #----------------------------------------------------------------------
+
+    def OnSetWeftPicks(self, event):
+        dlg = SetWeftPickDialog()
+        res = dlg.ShowModal()
+        if res == wx.ID_OK:
+            print dlg.pickcount.GetValue()
+        dlg.Destroy()
+    #----------------------------------------------------------------------
+
+    def OnSetWarpThreads(self, event):
+        dlg = SetWarpThreadsDialog()
+        res = dlg.ShowModal()
+        if res == wx.ID_OK:
+            print dlg.threadcount.GetValue()
+        dlg.Destroy()
+
+        
+    #----------------------------------------------------------------------
+    def OnSetShaftCount(self, event):
+        dlg = SetShaftCountDialog(self.Shafts, self.Treadles, self.ShedType)
+        res = dlg.ShowModal()
+        if res == wx.ID_OK:
+            # print dlg.shaftcount.GetValue()
+            chgShaft = int(dlg.shaftcount.GetValue())
+            chgTreadle = int(dlg.treadlecount.GetValue())
+            chgShedType =  dlg.shedtype.GetValue()
+            if (self.Shafts != chgShaft):
+                self.Shafts = chgShaft
+                # change the grids
+                print "change the grids"
+            if (self.Treadles != chgTreadle):
+                self.Treadles = chgTreadle
+                print "change treadle tieup grid"
+            if (chgShedType == self.ShedType):
+                pass
+            else:
+                self.ShedType = chgShedType
+                print "changed shed type. What to do"
+
+        dlg.Destroy()
+    #---------------------------------------------------------------------
+    
+#----------------------------------------------------------------------
+# #----------------------------------------------------------------------        
+# class SetShaftCountDialog(wx.Dialog):
+#     """
+#     """
+#     #----------------------------------------------------------------------
+#     def __init__(self, shaft, treadle, shed):
+#         """Constructor"""
+#         wx.Dialog.__init__(self, None, title="Loom Setup", size=(300,225))
+#         # print shaft
+#         curShaft = str(shaft)
+#         curTreadle = str(treadle)
+#         curShedType = shed
+
+#         self.shaftcount = wx.ComboBox(self, choices=LOOM_SHAFT_COUNT_LIST, value=curShaft, pos=(240, 15),style=wx.CB_READONLY)
+#         wx.StaticText(self, label='Set number of Shafts:', pos=(15, 20), size=(200, 45))
+
+#         self.treadlecount = wx.ComboBox(self, choices=LOOM_TREADLE_COUNT_LIST, value=curTreadle, pos=(240, 55),style=wx.CB_READONLY)
+#         wx.StaticText(self, label='Set number of Treadles:', pos=(15, 60), size=(200, 45))
+        
+#         self.shedtype = wx.ComboBox(self, choices=LOOM_SHED_TYPE, value=curShedType, pos=(145, 95),style=wx.CB_READONLY)
+#         wx.StaticText(self, label='Set Shed Type:', pos=(15, 100), size=(120, 45))
+        
+#         okButton = wx.Button(self, wx.ID_OK, "OK", pos=(15, 155))
+#         cancelButton = wx.Button(self, wx.ID_CANCEL, "Cancel", pos=(205, 155))
+#         # sizer = wx.BoxSizer(wx.VERTICAL)
+#         # self.SetSizer(sizer)
+        
+#     #----------------------------------------------------------------------
+
+# class SetWarpThreadsDialog(wx.Dialog):
+#     """
+#     """
+
+#     #----------------------------------------------------------------------
+#     def __init__(self):
+#         """Constructor"""
+#         wx.Dialog.__init__(self, None, title="Warp Threads")
+#         ends = []
+#         for thread in range(4, 130, 4):
+#             ends.append(str(thread))
+        
+#         self.threadcount = wx.ComboBox(self, choices=ends, value="")
+#         okBtn = wx.Button(self, wx.ID_OK)
+
+#         sizer = wx.BoxSizer(wx.VERTICAL)
+#         sizer.Add(self.threadcount, 0, wx.ALL|wx.CENTER, 5)
+#         sizer.Add(okBtn, 0, wx.ALL|wx.CENTER, 5)
+#         self.SetSizer(sizer)
+        
+#     #----------------------------------------------------------------------
+
+# class SetWeftPickDialog(wx.Dialog):
+#     """
+#     """
+
+#     #----------------------------------------------------------------------
+#     def __init__(self):
+#         """Constructor"""
+#         wx.Dialog.__init__(self, None, title="Weft Pick")
+#         ends = []
+#         for thread in range(4, 130, 4):
+#             ends.append(str(thread))
+        
+#         self.pickcount = wx.ComboBox(self, choices=ends, value="")
+#         okBtn = wx.Button(self, wx.ID_OK)
+
+#         sizer = wx.BoxSizer(wx.VERTICAL)
+#         sizer.Add(self.threadcount, 0, wx.ALL|wx.CENTER, 5)
+#         sizer.Add(okBtn, 0, wx.ALL|wx.CENTER, 5)
+#         self.SetSizer(sizer)
+    
+#----------------------------------------------------------------------
+#----------------------------------------------------------------------
 
 # Run the program
 if __name__ == "__main__":
